@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
 type RelayStatus = {
-  relay1: 'on' | 'off';
-  relay2: 'on' | 'off';
+  relay1: 'on' | 'off' | 'restart';
+  relay2: 'on' | 'off' | 'restart';
 };
 
 let relayStatus: RelayStatus = { relay1: 'off', relay2: 'off' };
@@ -13,7 +13,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { relay, action }: { relay: keyof RelayStatus; action: 'on' | 'off' } =
+  const {
+    relay,
+    action,
+  }: { relay: keyof RelayStatus; action: 'on' | 'off' | 'restart' } =
     await req.json();
 
   if (relay in relayStatus && (action === 'on' || action === 'off')) {
