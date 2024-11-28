@@ -1,5 +1,6 @@
 'use client';
 
+import Pusher from 'pusher-js';
 import React, { useEffect, useState } from 'react';
 type DeviceStatus = {
   ip: string;
@@ -8,21 +9,21 @@ type DeviceStatus = {
 const DevicesStatus = () => {
   const [status, setStatus] = useState<DeviceStatus | null>(null);
 
-  const fetchDeviceStatus = async () => {
-    try {
-      const response = await fetch('/api/device-status');
-      const data = await response.json();
-      setStatus(data.status);
-    } catch (error) {
-      console.error('Error fetching device status:', error);
-    }
-  };
-
   useEffect(() => {
     // Fetch device status setiap 5 detik
-    fetchDeviceStatus();
-    const interval = setInterval(fetchDeviceStatus, 5000);
-    return () => clearInterval(interval);
+    // Setup koneksi Pusher
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    });
+
+    const channel = pusher.subscribe('iot-status');
+    channel.bind('status-update', (data: DeviceStatus) => {
+      setStatus(data);
+    });
+
+    return () => {
+      pusher.unsubscribe('iot-status');
+    };
   }, []);
 
   return (
