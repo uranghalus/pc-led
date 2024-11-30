@@ -4,7 +4,19 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const { channel, event, data } = await req.json();
-    console.log('Received data:', { channel, event, data });
+
+    // Validasi input
+    if (!channel || !event || !data) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Log data yang diterima untuk debugging
+    console.log('Triggering Pusher event:', { channel, event, data });
+
+    // Trigger event ke Pusher
     await pusher.trigger(channel, event, data);
 
     return NextResponse.json({ success: true });

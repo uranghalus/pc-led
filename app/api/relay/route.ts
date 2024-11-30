@@ -6,7 +6,7 @@ let relay2Status = 'idle';
 // Function to enable CORS for all requests
 function setCorsHeaders() {
   return new Headers({
-    'Access-Control-Allow-Origin': '*', // Ganti '*' dengan domain tertentu jika diperlukan
+    'Access-Control-Allow-Origin': 'http://example.com', // Ganti dengan domain yang diizinkan
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   });
@@ -27,20 +27,33 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
-  // Update status relay berdasarkan permintaan
+  // Validasi input
+  if (body.relay1 && !['on', 'off'].includes(body.relay1)) {
+    return NextResponse.json(
+      { success: false, message: 'Invalid relay1 status' },
+      { status: 400 }
+    );
+  }
+  if (body.relay2 && body.relay2 !== 'restart') {
+    return NextResponse.json(
+      { success: false, message: 'Invalid relay2 status' },
+      { status: 400 }
+    );
+  }
+
+  // Update status relay
   if (body.relay1) {
-    relay1Status = body.relay1; // "on" atau "off"
+    relay1Status = body.relay1;
   }
 
   if (body.relay2 === 'restart') {
     relay2Status = 'restarting';
-    // Simulasikan proses restart
     setTimeout(() => {
       relay2Status = 'idle';
     }, 2000);
   }
 
-  // Kirim status relay setelah update dengan header CORS
+  // Kirim status relay setelah update
   const headers = setCorsHeaders();
   return NextResponse.json(
     {
