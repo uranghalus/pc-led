@@ -1,31 +1,34 @@
 import { NextResponse } from 'next/server';
 
-type RelayStatus = {
-  relay1: 'on' | 'off' | 'restart';
-  relay2: 'on' | 'off' | 'restart';
-};
+let relay1Status = 'off';
+let relay2Status = 'idle';
 
-let relayStatus: RelayStatus = { relay1: 'off', relay2: 'off' };
-
-// Handle POST dan GET request
 export async function GET() {
-  return NextResponse.json({ status: relayStatus });
+  // Kirim status relay
+  return NextResponse.json({
+    relay1: relay1Status,
+    relay2: relay2Status,
+  });
 }
 
-export async function POST(req: Request) {
-  const {
-    relay,
-    action,
-  }: { relay: keyof RelayStatus; action: 'on' | 'off' | 'restart' } =
-    await req.json();
+export async function POST(request: Request) {
+  const body = await request.json();
 
-  if (relay in relayStatus && (action === 'on' || action === 'off')) {
-    relayStatus = { ...relayStatus, [relay]: action };
-    return NextResponse.json({ success: true, status: relayStatus });
-  } else {
-    return NextResponse.json(
-      { success: false, message: 'Invalid input' },
-      { status: 400 }
-    );
+  // Update status relay berdasarkan permintaan
+  if (body.relay1) {
+    relay1Status = body.relay1; // "on" atau "off"
   }
+
+  if (body.relay2 === 'restart') {
+    relay2Status = 'restarting';
+    // Simulasikan proses restart
+    setTimeout(() => {
+      relay2Status = 'idle';
+    }, 2000);
+  }
+
+  return NextResponse.json({
+    relay1: relay1Status,
+    relay2: relay2Status,
+  });
 }
