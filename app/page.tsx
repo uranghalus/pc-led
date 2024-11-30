@@ -1,5 +1,6 @@
 'use client';
 
+import DevicesStatus from '@/components/devices-status';
 import { useState, useEffect } from 'react';
 
 const Home = () => {
@@ -53,6 +54,7 @@ const Home = () => {
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-2xl font-bold mb-6">Kontrol Relay</h1>
       <div className="flex flex-col gap-4">
+        <DevicesStatus />
         <div className="bg-white p-4 rounded shadow w-64 text-center">
           <h2 className="text-lg font-semibold">Relay 1</h2>
           <p className="mb-2">Status: {relay1Status}</p>
