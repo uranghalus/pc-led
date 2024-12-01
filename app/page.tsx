@@ -62,7 +62,7 @@ const Home = () => {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="text-center bg-white p-8 min-h-screen min-w-[320px] max-w-lg w-full">
+      <div className="text-center bg-white p-4 min-h-screen min-w-[320px] max-w-lg w-full">
         <DevicesStatus />
         <div className="mt-5 w-full">
           <div className="text-2xl text-left">Control PC</div>
@@ -73,12 +73,11 @@ const Home = () => {
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 w-full">
             {/* Kolom 1 */}
-            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 w-full max-w-xs">
+            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 w-full">
               <h2 className="text-sm font-bold text-left">Hidupkan PC</h2>
               <button
                 onClick={toggleRelay1}
-                className="flex flex-col items-center justify-center w-full bg-[#A62639] text-white rounded-[15px] p-[15px_14px] max-w-xs 
-              transform transition-all duration-200 hover:bg-[#8f1f2b] active:scale-95"
+                className="flex flex-col items-center justify-center w-full bg-[#A62639] text-white rounded-[15px] p-[15px_14px] transform transition-all duration-200 hover:bg-[#8f1f2b] active:scale-95"
               >
                 <RiShutDownLine className="text-white text-4xl" />
                 <span className="text-base font-medium text-white">
@@ -87,12 +86,11 @@ const Home = () => {
               </button>
             </div>
             {/* Kolom 2 */}
-            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 w-full max-w-xs">
+            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 w-full">
               <h2 className="text-sm font-bold text-left">Restart PC</h2>
               <button
                 onClick={restartRelay2}
-                className={`flex flex-col items-center justify-center w-full bg-[#E5B769] text-white rounded-[15px] p-[15px_14px] max-w-xs 
-              transform transition-all duration-200 hover:bg-[#d49a5b] active:scale-95`}
+                className={`flex flex-col items-center justify-center w-full bg-[#E5B769] text-white rounded-[15px] p-[15px_14px] transform transition-all duration-200 hover:bg-[#d49a5b] active:scale-95`}
                 disabled={relay2Status === 'restarting'}
               >
                 <RiRestartLine className="text-white text-4xl" />
