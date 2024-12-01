@@ -1,5 +1,6 @@
 'use client';
 
+import { RiComputerLine, RiGlobalLine } from '@remixicon/react';
 import Pusher from 'pusher-js';
 import React, { useEffect, useState } from 'react';
 type DeviceStatus = {
@@ -27,26 +28,33 @@ const DevicesStatus = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
-      <div className="card w-full max-w-md bg-white shadow-xl p-6 rounded-lg">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Device Status
-        </h2>
+    <div className="card w-full bg-[#55828B] shadow-xl p-6 rounded-lg">
+      <div className="card-title text-white font-bold text-lg mb-3">
+        Device Status
+      </div>
+      <div className="card-body p-0">
         {status ? (
-          <div className="space-y-2">
-            <p className="text-gray-700">
-              <span className="font-semibold">IP Address:</span> {status.ip}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-semibold">Status:</span>{' '}
+          <div className="space-y-4 w-full">
+            <div className="w-full flex items-center justify-between">
+              <div className="p-3 bg-white rounded-xl ">
+                <RiGlobalLine className="text-[#55828B] size-5" />
+              </div>
+              <p className="text-xl font-semibold text-white text-right">
+                {status?.ip || 'Dummy IP'}
+              </p>
+            </div>
+            <div className="w-full flex items-center justify-between">
+              <div className="p-3 bg-white rounded-xl flex items-center justify-center">
+                <RiComputerLine className="size-5 text-[#55828B]" />
+              </div>
               <span
                 className={`badge ${
-                  status.isConnected ? 'badge-success' : 'badge-error'
+                  status?.isConnected ? 'badge-success' : 'badge-error'
                 }`}
               >
-                {status.isConnected ? 'Connected' : 'Disconnected'}
+                {status?.isConnected ? 'Connected' : 'Disconnected'}
               </span>
-            </p>
+            </div>
           </div>
         ) : (
           <div className="flex justify-center items-center">

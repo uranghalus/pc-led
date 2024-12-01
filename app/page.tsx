@@ -1,6 +1,7 @@
 'use client';
 
 import DevicesStatus from '@/components/devices-status';
+import { RiRestartLine, RiShutDownLine } from '@remixicon/react';
 import { useState, useEffect } from 'react';
 
 const Home = () => {
@@ -60,37 +61,47 @@ const Home = () => {
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold mb-6">Kontrol Relay</h1>
-      {errorMessage && (
-        <div className="bg-red-100 text-red-800 p-4 rounded mb-4">
-          {errorMessage}
-        </div>
-      )}
-      <div className="flex flex-col gap-4">
+    <main className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="text-center bg-white p-8 min-h-screen min-w-[448px] max-w-lg">
         <DevicesStatus />
-        <div className="bg-white p-4 rounded shadow w-64 text-center">
-          <h2 className="text-lg font-semibold">Relay 1</h2>
-          <p className="mb-2">Status: {relay1Status}</p>
-          <button
-            onClick={toggleRelay1}
-            className={`py-2 px-4 rounded ${
-              relay1Status === 'on' ? 'bg-red-500' : 'bg-green-500'
-            } text-white`}
-          >
-            {relay1Status === 'on' ? 'Matikan' : 'Hidupkan'}
-          </button>
-        </div>
-        <div className="bg-white p-4 rounded shadow w-64 text-center">
-          <h2 className="text-lg font-semibold">Relay 2 (Restart)</h2>
-          <p className="mb-2">Status: {relay2Status}</p>
-          <button
-            onClick={restartRelay2}
-            className="py-2 px-4 bg-blue-500 text-white rounded"
-            disabled={relay2Status === 'restarting'}
-          >
-            Restart
-          </button>
+        <div className="mt-5">
+          <div className="text-2xl text-left">Control PC</div>
+          {errorMessage && (
+            <div className="bg-red-100 text-red-800 p-4 rounded mb-4">
+              {errorMessage}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            {/* Kolom 1 */}
+            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 max-w-xs w-full">
+              <h2 className="text-sm font-bold text-left">Hidupkan PC</h2>
+              <button
+                onClick={toggleRelay1}
+                className="flex flex-col items-center justify-center w-full bg-[#A62639] text-white rounded-[15px] p-[15px_14px] max-w-xs"
+              >
+                <RiShutDownLine className="text-white text-4xl" />
+                <span className="text-base font-medium text-white">
+                  Turn On
+                </span>
+              </button>
+            </div>
+            {/* Kolom 2 */}
+            <div className="bg-white p-4 rounded-2xl shadow-lg space-y-2 max-w-xs w-full">
+              <h2 className="text-sm font-bold text-left">Restart PC</h2>
+              <button
+                onClick={restartRelay2}
+                className="flex flex-col items-center justify-center w-full bg-[#E5B769] text-white rounded-[15px] p-[15px_14px] max-w-xs"
+                disabled={relay2Status === 'restarting'}
+              >
+                <RiRestartLine className="text-white text-4xl" />
+                <span className="text-base font-medium text-white">
+                  {relay2Status === 'restarting'
+                    ? 'Restarting...'
+                    : 'Restart PC'}
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </main>
