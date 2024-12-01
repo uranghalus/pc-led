@@ -48,7 +48,7 @@ const DevicesStatus = () => {
                 <RiComputerLine className="size-5 text-[#55828B]" />
               </div>
               <span
-                className={`badge ${
+                className={`badge p-4 text-base font-medium text-white border-2 border-white ${
                   status?.isConnected ? 'badge-success' : 'badge-error'
                 }`}
               >
