@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-let relay1Status = 'off';
-let relay2Status = 'idle';
+let relay1Status: string = 'off';
+let relay2Status: string = 'idle';
+let restartId: symbol | null = null; // Tipe eksplisit untuk restartId
 
 // Function to enable CORS for all requests
 function setCorsHeaders() {
@@ -47,10 +48,18 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.relay2 === 'restart') {
-    relay2Status = 'restarting';
-    setTimeout(() => {
-      relay2Status = 'idle';
-    }, 2000);
+    if (relay2Status !== 'restarting') {
+      relay2Status = 'restarting';
+      const currentRestartId: symbol = Symbol('restartId'); // Identifier unik dengan tipe eksplisit
+      restartId = currentRestartId;
+
+      setTimeout(() => {
+        // Hanya ubah status jika identifier masih cocok
+        if (restartId === currentRestartId) {
+          relay2Status = 'idle';
+        }
+      }, 6000);
+    }
   }
 
   // Kirim status relay setelah update
