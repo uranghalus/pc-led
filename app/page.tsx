@@ -26,6 +26,7 @@ export default function ControlPage() {
       }
     } catch (error) {
       setMessage('Error sending command');
+      console.log(error);
     } finally {
       setLoading(false);
     }
