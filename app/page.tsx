@@ -30,8 +30,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Inisialisasi Pusher untuk mendengarkan event status-update
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    const pusher = new Pusher(process.env.PUSHER_APP_KEY!, {
+      cluster: process.env.PUSHER_CLUSTER!,
     });
 
     const channel = pusher.subscribe('iot-status');
