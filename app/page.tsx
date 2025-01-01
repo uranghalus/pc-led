@@ -30,7 +30,9 @@ const Page = () => {
         <div className="space-y-3 pb-2">
           <CardTitle className="text-sm font-medium">Status PC</CardTitle>
           <div className="text-2xl font-bold">Arduino Controller</div>
-          <Badge>{status}</Badge>
+          <Badge variant={status == 'idle' ? 'default' : 'destructive'}>
+            {status}
+          </Badge>
         </div>
         <div className="rounded-lg bg-blue-500 p-5">
           <Computer className="w-8 h-8 text-white" />
