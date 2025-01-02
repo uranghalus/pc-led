@@ -4,12 +4,16 @@
 
 // === KONFIGURASI ===
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 15, 5);
-IPAddress gateway(192, 168, 15, 1);
-EthernetServer server(80);
+// IPAddress ip(192, 168, 15, 5);
+// IPAddress gateway(192, 168, 15, 1);
+EthernetClient client;
+
+const char* server = "https://pc-led.vercel.app"; // URL aplikasi Anda
+const int port = 80;
 
 const int relays[] = {2, 3, 4, 5}; // Konfigurasi Relay
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Konfigurasi LCD I2C
+bool isConnected = false; 
 
 void sendResponse(EthernetClient &client, const char *message, int statusCode = 200) {
   client.print(F("HTTP/1.1 "));
@@ -22,79 +26,116 @@ void sendResponse(EthernetClient &client, const char *message, int statusCode = 
 }
 
 void setup() {
-  Serial.begin(9600);
+ Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.backlight();
 
+  // Inisialisasi relai
   for (int relay : relays) {
     pinMode(relay, OUTPUT);
     digitalWrite(relay, HIGH);
   }
 
-  lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Connecting..."));
 
+  // Inisialisasi Ethernet
   if (Ethernet.begin(mac) == 0) {
-    Ethernet.begin(mac, ip, gateway);
+    // Ethernet.begin(mac, ip, gateway);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(F("DHCP Failed"));
+    while (true); // Berhenti jika DHCP gagal
   }
-
-  server.begin();
 
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Your IP:"));
   lcd.setCursor(0, 1);
   lcd.print(Ethernet.localIP());
+  Serial.print("Assigned IP: ");
   Serial.println(Ethernet.localIP());
 }
 
 void loop() {
-  EthernetClient client = server.available();
-  if (client) {
-    String request = parseRequest(client);
-    if (request.length() > 0) {
-      handleRequest(client, request);
+ checkConnection();
+
+  // Jika terkoneksi, poll server untuk perintah
+  if (isConnected) {
+    pollServer();
+  } else {
+    delay(5000); // Tunggu 5 detik sebelum mencoba lagi
+  }
+}
+
+void checkConnection() {
+  if (client.connect(server, port)) {
+    isConnected = true;
+    client.stop();
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(F("Status:"));
+    lcd.setCursor(0, 1);
+    lcd.print(F("Connected"));
+    Serial.println("Connected to server");
+  } else {
+    isConnected = false;
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(F("Status:"));
+    lcd.setCursor(0, 1);
+    lcd.print(F("No Connection"));
+    Serial.println("Failed to connect");
+  }
+
+  delay(5000); // Periksa koneksi setiap 5 detik
+}
+
+void pollServer() {
+  if (client.connect(server, port)) {
+    client.println("GET /api/command HTTP/1.1");
+    client.println("Host: https://pc-led.vercel.app");
+    client.println("Connection: close");
+    client.println();
+
+    while (client.connected() || client.available()) {
+      if (client.available()) {
+        String response = client.readStringUntil('\n');
+        if (response.startsWith("{")) {
+          String command = parseCommand(response);
+          executeCommand(command);
+        }
+      }
     }
     client.stop();
   }
-  Ethernet.maintain();
 }
 
-String parseRequest(EthernetClient &client) {
-  String request;
-  unsigned long timeout = millis() + 1000;
-  while (client.connected() && millis() < timeout) {
-    if (client.available()) {
-      char c = client.read();
-      request += c;
-      if (request.endsWith("\r\n\r\n")) break;
-    }
-  }
-  return (request.length() > 512) ? "" : request;
+String parseCommand(String response) {
+  int start = response.indexOf("command\":\"") + 10;
+  int end = response.indexOf("\"", start);
+  return response.substring(start, end);
 }
 
-void handleRequest(EthernetClient &client, const String &request) {
+void executeCommand(String command) {
   lcd.clear();
-
-  if (request.indexOf(F("GET /trigger/power_on")) >= 0) {
+  if (command == "power_on") {
     trigger(relays[0]);
-    sendResponse(client, "PC Powered On");
-    lcd.print(F("PC Powered On"));
-
-  } else if (request.indexOf(F("GET /trigger/power_off")) >= 0) {
+    lcd.print(F("Power On"));
+    Serial.println("Power On Command Executed");
+  } else if (command == "power_off") {
     trigger(relays[0]);
-    sendResponse(client, "PC Turning Off");
-    lcd.print(F("PC Turning Off"));
-
-  } else if (request.indexOf(F("GET /trigger/restart")) >= 0) {
+    lcd.print(F("Power Off"));
+    Serial.println("Power Off Command Executed");
+  } else if (command == "restart") {
     trigger(relays[1]);
-    sendResponse(client, "PC Restarted");
-    lcd.print(F("PC Restarted"));
-
+    lcd.print(F("Restart"));
+    Serial.println("Restart Command Executed");
   } else {
-    sendResponse(client, "404 Not Found", 404);
-    lcd.print(F("Request Error"));
+    lcd.print(F("Idle"));
+    Serial.println("Idle");
   }
 }
 
