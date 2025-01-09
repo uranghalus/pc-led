@@ -12,7 +12,7 @@ export async function GET(
     const setting = await prisma.setting.findFirst();
     if (!setting || !setting.ip_controller) {
       return NextResponse.json(
-        { message: 'IP controller not found' },
+        { message: 'IP controller not found tidak ditemukan' },
         { status: 400 }
       );
     }
