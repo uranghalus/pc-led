@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-type routeParams = {
-  params: {
-    action: string;
-  };
-};
-export async function GET(request: Request, { params }: routeParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: { action: string } }
+) {
   try {
     const { action } = params;
 
