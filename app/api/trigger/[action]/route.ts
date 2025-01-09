@@ -3,10 +3,10 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  context: { params: { action: string } }
+  { params }: { params: Promise<{ action: string }> }
 ) {
   try {
-    const { action } = context.params;
+    const { action } = await params;
 
     // Fetch the IP controller from the database
     const setting = await prisma.setting.findFirst();
