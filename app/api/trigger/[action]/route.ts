@@ -3,18 +3,17 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: { action: string } }
+  context: { params: { action: string } }
 ) {
   try {
-    const { action } = params;
+    const { action } = context.params;
 
     // Fetch the IP controller from the database
     const setting = await prisma.setting.findFirst();
-
     if (!setting || !setting.ip_controller) {
       return NextResponse.json(
-        { message: 'IP controller not configured' },
-        { status: 404 }
+        { message: 'IP controller not found' },
+        { status: 400 }
       );
     }
 
@@ -23,18 +22,15 @@ export async function GET(
 
     console.log('Requesting URL:', url);
 
-    // Create AbortController for timeout
+    // Use AbortController to set a timeout for the request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout 5 seconds
 
     try {
+      // Perform the GET request to the Arduino
       const response = await fetch(url, {
         method: 'GET',
         signal: controller.signal,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
       });
 
       clearTimeout(timeoutId);
@@ -42,27 +38,17 @@ export async function GET(
       if (!response.ok) {
         console.error('Failed response from Arduino:', response.statusText);
         return NextResponse.json(
-          {
-            message: 'Failed to communicate with Arduino',
-            status: response.status,
-            statusText: response.statusText,
-          },
+          { message: 'Failed to communicate with Arduino' },
           { status: 500 }
         );
       }
 
-      // Attempt to parse as JSON, fallback to text
-      const contentType = response.headers.get('content-type');
-      const data = contentType?.includes('application/json')
-        ? await response.json()
-        : await response.text();
+      // Parse response as text
+      const data = await response.text();
 
       console.log('Response from Arduino:', data);
-
-      return NextResponse.json({
-        message: data,
-      });
-    } catch (error) {
+      return NextResponse.json({ message: data });
+    } catch (error: unknown) {
       clearTimeout(timeoutId);
 
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -73,28 +59,21 @@ export async function GET(
         );
       }
 
-      if (error instanceof TypeError) {
-        console.error('Network error:', error.message);
-        return NextResponse.json(
-          {
-            message: 'Network error occurred',
-            details: error.message,
-          },
-          { status: 503 }
-        );
-      }
-
-      throw error;
+      throw error; // Rethrow other errors
     }
-  } catch (error) {
-    console.error('Unexpected error in /api/trigger:', error);
+  } catch (error: unknown) {
+    console.error('Error in /api/trigger:', error);
 
-    return NextResponse.json(
-      {
-        message: 'Internal Server Error',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: 'Internal Server Error', error: error.message },
+        { status: 500 }
+      );
+    } else {
+      return NextResponse.json(
+        { message: 'Internal Server Error', error: 'Unknown error' },
+        { status: 500 }
+      );
+    }
   }
 }
