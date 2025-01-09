@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(
-  request: Request,
-  context: { params: { action: string } }
-) {
+type routeParams = {
+  params: {
+    action: string;
+  };
+};
+export async function GET(request: Request, { params }: routeParams) {
   try {
-    const { action } = context.params;
+    const { action } = params;
 
     // Fetch the IP controller from the database
     const setting = await prisma.setting.findFirst();
