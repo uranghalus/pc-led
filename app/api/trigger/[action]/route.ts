@@ -3,16 +3,16 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: { action: string } }
+  context: { params: { action: string } }
 ) {
   try {
-    const { action } = params;
+    const { action } = context.params;
 
     // Fetch the IP controller from the database
     const setting = await prisma.setting.findFirst();
     if (!setting || !setting.ip_controller) {
       return NextResponse.json(
-        { message: 'IP controller not found tidak ditemukan' },
+        { message: 'IP controller not found' },
         { status: 400 }
       );
     }
